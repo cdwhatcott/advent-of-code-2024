@@ -24,8 +24,8 @@ class DayFourTest {
         var matches = 0
         val rows = getRows(matrix)
         val cols = getCols(matrix)
-        // TODO need to get diagonals
-        val lines = rows + cols
+        val diagonals = getDiagonals(matrix)
+        val lines = rows + cols + diagonals.ltr + diagonals.bltr
         for (line in lines) {
             val lineMatches = getMatchCount(line)
             matches += lineMatches

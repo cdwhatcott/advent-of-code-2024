@@ -2,26 +2,22 @@ package four
 
 import util.readInput
 
-val xmasRegex = "xmas|samx".toRegex(RegexOption.IGNORE_CASE)
+val xmasRegex = "xmas".toRegex(RegexOption.IGNORE_CASE)
+val samxRegex = "samx".toRegex(RegexOption.IGNORE_CASE)
 
 fun main() {
     val input = readInput("/day-4/input.txt") ?: ""
     val matrix = createMatrix(input)
     val rows = getRows(matrix)
     val cols = getCols(matrix)
-    println("Rows:")
-    for (row in rows) {
-        println(row)
-        val matches = getMatchCount(row)
-        println("Matches: $matches")
+    val diagonals = getDiagonals(matrix)
+    val lines = rows + cols + diagonals.ltr + diagonals.bltr
+    var totalMatches = 0
+    for (line in lines) {
+        val matches = getMatchCount(line)
+        totalMatches += matches
     }
-    println("Cols:")
-    for (col in cols) {
-        println(col)
-        val matches = getMatchCount(col)
-        println("Matches: $matches")
-    }
-    // TODO need to get diagonals
+    println("Total Matches: ${totalMatches}")
 }
 
 fun createMatrix(input: String): Array<CharArray> {
@@ -47,6 +43,22 @@ fun getCols(matrix: Array<CharArray>): List<String> {
     return results
 }
 
+data class Diagonals(val ltr: List<String>, val bltr: List<String>)
+fun getDiagonals(matrix: Array<CharArray>): Diagonals {
+    if (matrix.isEmpty()) return Diagonals(listOf(), listOf())
+    val dim = matrix.size
+    if (matrix[0].size != dim) throw Error("Matrix is not square")
+    val ltr = Array((2 * matrix.size) - 1) { mutableListOf<Char>() }
+    val bltr = Array((2 * matrix.size) - 1) { mutableListOf<Char>() }
+    for (row in 0 until dim) {
+        for (col in 0 until dim) {
+            ltr[col - row + (dim - 1)].add(matrix[row][col])
+            bltr[row + col].add(matrix[row][col])
+        }
+    }
+    return Diagonals(ltr.map { it.joinToString("")}, bltr.map { it.joinToString("") })
+}
+
 fun getMatchCount(line: String): Int {
-    return xmasRegex.findAll(line).count()
+    return xmasRegex.findAll(line).count() + samxRegex.findAll(line).count()
 }
